@@ -1,0 +1,310 @@
+<html>
+	<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+        <link rel="stylesheet" href="/main.css"/>
+
+        <title>MiniBit</title>
+	</head>
+
+    <body>
+
+    	<div class="container">
+
+            <div class="flat-panel">
+                <h2 class="dark">MiniBit Computer</h2>
+                <p class="light">Desigining and building a computer from scratch</p>
+                <a class="intro-link" href="/"><i class="fas fa-home"></i> Home</a>
+            </div>
+
+    		<div class="row">
+    			<div class="col-12 col-sm-6">
+    				<img class="img-fluid" src="annotated.JPG"></img>
+    			</div>
+                <div class="col-12 col-sm-6">
+    				<img class="img-fluid" src="overview.png"></img>
+    			</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 col-sm-6">
+                    <p class="light">Annotated view of MiniBit version 2 (December 2016)</p>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <p class="light">Architecture Overview</p>
+                </div>
+            </div>
+
+    		<div class="flat-panel">
+                <h3>Background</h3>
+
+                <p>
+                    I've been curious about computers and technology for as long as I can remember.
+                    When I started out, I was learning high level languages like LOGO and Java and most of the underlying mechanics were hidden from me.
+                    Recently, I started to get interested in low level system programming and assembly code and learned C and x86 assembly.
+                    I wanted to <i>really</i> understand how a computer could take x86 assembly and actually perform the instructions but I found that writing and assembling x86 on a modern processor was too complex to fully understand.
+                </p>
+    
+                <p>
+                    Then I got the idea to design and build my own RISC architecture.
+                    I had some experience with digital electronics and building small circuits to do things like add binary numbers but I had no idea how a CPU worked.
+                </p>
+    
+                <p>
+                    This is my second try at building a working cpu and I currently have a mostly functional prototype built on 13 breadboards.
+                    I've sketched out a full schematic in KiCad and I've also replicated the entire thing in System Verilog in order to simulate it at the logic gate level (this has been invaluable for debugging). 
+                </p>
+            </div>
+
+            <div class="flat-panel">
+                <h3>Goals/limitations</h3>
+
+                <p>
+                    I wanted to use only simple integrated circuits in my design.
+                    Therefore, if I had the time and money I could theoretically build the entire thing out of discrete transistors.
+                </p>
+    
+                <p>
+                    At the current stage, there is no display and input is performed with a dip switch panel.
+                    I have plans to add I/O capabilities which could eventually be extended to work with a modified display or keyboard.
+                </p>
+            </div>
+
+            <div class="flat-panel">
+                <h3>Architecture Overview</h3>
+
+                <p>
+                    MiniBit is an 8-bit processor.
+                    Components are connected to an 8-bit data bus or a 2-bit control bus.
+                </p>
+    
+                <p>
+                    There are 8 registers of which 2 are general purpose.
+                    However only 4 are readable and only 4 are writeable therefore you only need 2 bits to identify registers in operands.
+                </p>
+    
+                <p>
+                    There are 23 unique instructions. Opcodes are either one or two bytes long depending on whether the operation takes an 8-bit immediate.
+                </p>
+    
+                <p>
+                    All instructions take 6 clock cycles to execute.
+                    The clock itself, can be incremented manually for debugging or set to run automatically.
+                    Speed is controlled with a potentiometer.
+                    I haven't yet tested the maximum processor speed.
+                </p>
+    
+                <p>
+                    Currently, RAM addresses are 8-bit and therefore there are 256 bytes of addressable memory.
+                    However, I have plans to expand to 16-bit addresses and therefore 64 KB of memory.
+                </p>
+    
+                <p>
+                    There is no ROM so all data is lost when powered off.
+                </p>
+            </div>
+
+            <div class="flat-panel">
+                <h3>Registers</h3>
+
+                <p>
+                    Here are a list of registers along with their function:
+                </p>
+    
+                <ul>
+                    <li>
+                        <p><code>A</code> - general purpose register, can read/write to data bus, first operand for the ALU</p>
+                    </li>
+                    <li>
+                        <p><code>B</code> - general purpose register, can read/write to data bus, second operand for the ALU</p>
+                    </li>
+                    <li>
+                        <p><code>O</code> (output) - output of ALU operations, can write to data bus</p>
+                    </li>
+                    <li>
+                        <p>
+                            <code>FL</code> (flag) - written to by ALU operations, used in sequencer and ALU operation, stores the following bit flags:
+                            <ul class="list-indent">
+                                <li>
+                                    <p><code>CARRY</code> - set if an operation overflows</p>
+                                </li>
+                                <li>
+                                    <p><code>LT</code> (less than) - set if the most significant bit is set on output</p>
+                                </li>
+                                <li>
+                                    <p><code>NZ</code> (not zero) - set if output of ALU is not zero</p>
+                                </li>
+                            </ul>
+                        </p>
+                    </li>
+                    <li>
+                        <p><code>IP</code> (instruction pointer) - holds the current instruction address, updated automatically by sequencer, writes to RAM address selector</p>
+                    </li>
+                    <li>
+                        <p><code>M</code> (memory) - holds custom data address, can read from data bus, writes to RAM address selector</p>
+                    </li>
+                    <li>
+                        <p><code>INT</code> (instruction) - holds currently executing instruction, set automatically in fetch-execute cycle, used as opcode reference</p>
+                    </li>
+                    <li>
+                        <p><code>VAL</code> (value) - holds optional second byte of opcode, can write to data bus</p>
+                    </li>
+                </ul>
+    
+                <br/>
+    
+                <p>
+                    For the registers that can be programmed to interact with the data bus, the following two bit identifiers are used in opcodes:
+                </p>
+    
+                <p>Write (reg -> bus) (<code>aa</code>)</p>
+    
+                <ul>
+                    <li>
+                        <p><code>00</code> - <code>A</code></p>
+                        <p><code>01</code> - <code>B</code></p>
+                        <p><code>10</code> - <code>O</code></p>
+                        <p><code>11</code> - <code>VAL</code></p>
+                    </li>
+                </ul>
+    
+                <p>Read (bus -> reg) (<code>bb</code>)</p>
+    
+                <ul>
+                    <li>
+                        <p><code>00</code> - <code>A</code></p>
+                        <p><code>01</code> - <code>B</code></p>
+                        <p><code>10</code> - <code>IP</code></p>
+                        <p><code>11</code> - <code>M</code></p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flat-panel">
+                <h3>ALU (arithmetic logic unit)</h3>
+
+                <p>
+                    The ALU performs basic, 8-bit arithmetic operations on either one or both <code>A</code> and <code>B</code> registers and stores the output in <code>O</code>.
+                    Additionally, it stores operation flags in <code>FL</code> that can be used in further instructions.
+                    For instance, it is possible to use the carry flag to perform arithmetic operations on values of any size.
+                </p>
+    
+                <p>
+                    All ALU opcodes are of the type <code>111xxxxx</code> and the lowest 5 bits are passed directly to the ALU as a secondary opcode.
+                </p>
+    
+                <p>
+                    The following operations are supported:
+                </p>
+    
+                <ul>
+                    <li>
+                        <p><code>ADD</code> - (A + B)</p>
+                    </li>
+                    <li>
+                        <p><code>CADD</code> - (A + B), use carry flag</p>
+                    </li>
+                    <li>
+                        <p><code>SUB</code> - (A - B)</p>
+                    </li>
+                    <li>
+                        <p><code>CSUB</code> - (A - B), use carry flag</p>
+                    </li>
+                    <li>
+                        <p><code>INC</code> - (A + 1)</p>
+                    </li>
+                    <li>
+                        <p><code>NAND</code> - (A NAND B)</p>
+                    </li>
+                    <li>
+                        <p><code>BTL</code> - (A << 1)</p>
+                    </li>
+                    <li>
+                        <p><code>CBTL</code> - (A << 1), use carry flag</p>
+                    </li>
+                    <li>
+                        <p><code>BTR</code> - (A >> 1)</p>
+                    </li>
+                    <li>
+                        <p><code>CBTR</code> - (A >> 1), use carry flag</p>
+                    </li>
+                </ul>
+            </div>
+
+    		<div class="flat-panel">
+                <h3>Data Operation</h3>
+
+                <p>
+                    The following instructions can be used to move data around:
+                </p>
+    
+                <p>
+                    <i>Note: the symbols <code>aa</code> and <code>bb</code> represent the two bit register identifiers.</i>
+                </p>
+    
+                <ul>
+                    <li>
+                        <p><code>MOV aa, bb</code> - moves the contents of aa to bb</p>
+                    </li>
+                    <li>
+                        <p><code>STORE aa</code> - stores the contents of aa in RAM at address M</p>
+                    </li>
+                    <li>
+                        <p><code>FETCH bb</code> - fetches the contents of RAM at address M into bb</p>
+                    </li>
+                    <li>
+                        <p><code>LOAD bb, [val]</code> (2 bytes) - loads an 8-bit value into bb</p>
+                    </li>
+                    <li>
+                        <p><code>SAVE, [val]</code> (2 bytes) - saves an 8-bit value into RAM at address M</p>
+                    </li>
+                    <li>
+                        <p><code>INCM</code> - increment the M register</p>
+                    </li>
+                    <li>
+                        <p><code>DECM</code> - decrement the M register</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flat-panel">
+                <h3>Branching and Control</h3>
+
+                <ul>
+                    <li>
+                        <p><code>DISP aa</code> - display contents of aa on the bus until control signal is recieved</p>
+                    </li>
+                    <li>
+                        <p><code>READ bb</code> - read contents of bus into bb when control signal is recieved</p>
+                    </li>
+                    <li>
+                        <p><code>HLT</code> - halt until control signal is recieved</p>
+                    </li>
+                    <li>
+                        <p><code>JMP, [val]</code> (2 bytes) - unconditional jump to val</p>
+                    </li>
+                    <li>
+                        <p><code>JLT, [val]</code> (2 bytes) - jump to val if LT flag is set</p>
+                    </li>
+                    <li>
+                        <p><code>JNZ, [val]</code> (2 bytes) - jump to val if NZ flag is set</p>
+                    </li>
+                </ul>
+            </div>
+
+            <hr/>
+
+            <p>
+                More info coming soon...
+            </p>
+
+            <hr/>
+
+        </div>
+        
+    </body>
+
+</html>
